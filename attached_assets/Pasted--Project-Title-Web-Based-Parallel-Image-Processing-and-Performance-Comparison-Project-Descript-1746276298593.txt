@@ -1,0 +1,176 @@
+🧠 Project Title: Web-Based Parallel Image Processing and Performance Comparison
+📘 Project Description
+This project involves creating a web-based application that allows users to upload a single image or multiple images and apply image processing tasks (such as edge detection, blurring, and histogram equalization) using both sequential and parallel processing techniques. The app measures and compares execution time between these two approaches to highlight the advantages of parallel computing in image processing tasks.
+
+🎯 Key Objectives
+Develop a web interface for image upload and processing.
+
+Implement sequential and parallel versions of image processing functions.
+
+Allow users to compare performance metrics (time taken, speedup ratio).
+
+Provide processed images for download or preview.
+
+Demonstrate real-world utility of parallel computing in a user-friendly environment.
+
+🧪 Core Image Processing Tasks
+Edge Detection – Using Canny filter.
+
+Blurring – Using Gaussian blur.
+
+Histogram Equalization – Enhancing contrast.
+
+⚙️ Parallel Processing Techniques
+Technique	Description
+Multiprocessing	CPU-based parallelism using multiple processes.
+Threading	Lightweight threads, limited by GIL in CPU-bound tasks.
+Joblib	High-level parallel loops for array-based tasks.
+Concurrent Futures	Asynchronous task execution with process/thread pools.
+CUDA (CuPy/Numba)	GPU-based acceleration (for advanced usage).
+MPI (mpi4py)	Distributed computing for cluster-scale workloads.
+
+🧰 Python Libraries Used
+Purpose	Library
+Image Processing	OpenCV (cv2)
+Web Framework	Flask or FastAPI
+Parallel Processing	multiprocessing, joblib, concurrent.futures
+File Upload Handling	Werkzeug, Flask-Uploads
+Frontend	HTML, CSS, JavaScript (or Bootstrap for styling)
+Performance Timing	time, datetime
+Optional GPU Support	Numba, CuPy, PyCUDA
+
+🌐 System Architecture
+sql
+Copy
+Edit
+User → Browser UI → Flask/FastAPI Web App → Backend (Image Processing)
+                                         ↳ Sequential Processing
+                                         ↳ Parallel Processing
+                                       → Output & Time Comparison → Browser
+🛠️ Step-by-Step Implementation
+✅ Step 1: Set Up Environment
+Install dependencies:
+
+bash
+Copy
+Edit
+pip install flask opencv-python numpy joblib matplotlib
+✅ Step 2: Create Flask Web Interface
+HTML form to upload image(s)
+
+Option to choose between Sequential or Parallel processing
+
+Submit button triggers backend processing
+
+html
+Copy
+Edit
+<form action="/process" method="post" enctype="multipart/form-data">
+    <input type="file" name="images" multiple>
+    <select name="mode">
+        <option value="sequential">Sequential</option>
+        <option value="parallel">Parallel</option>
+    </select>
+    <button type="submit">Upload and Process</button>
+</form>
+✅ Step 3: Backend - Define Image Processing Functions
+python
+Copy
+Edit
+import cv2
+
+def process_image(image_path):
+    img = cv2.imread(image_path, 0)
+
+    edges = cv2.Canny(img, 100, 200)
+    blurred = cv2.GaussianBlur(img, (5, 5), 0)
+    hist_eq = cv2.equalizeHist(img)
+
+    return {'original': img, 'edges': edges, 'blurred': blurred, 'hist_eq': hist_eq}
+✅ Step 4: Sequential and Parallel Processing Logic
+python
+Copy
+Edit
+import time
+from multiprocessing import Pool, cpu_count
+
+def sequential(images):
+    start = time.time()
+    results = [process_image(img) for img in images]
+    end = time.time()
+    return results, end - start
+
+def parallel(images):
+    start = time.time()
+    with Pool(cpu_count()) as pool:
+        results = pool.map(process_image, images)
+    end = time.time()
+    return results, end - start
+✅ Step 5: Backend Endpoint in Flask
+python
+Copy
+Edit
+from flask import Flask, request, render_template, send_from_directory
+import os
+
+app = Flask(__name__)
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/process', methods=['POST'])
+def process():
+    mode = request.form['mode']
+    files = request.files.getlist('images')
+    paths = []
+
+    for file in files:
+        path = os.path.join(UPLOAD_FOLDER, file.filename)
+        file.save(path)
+        paths.append(path)
+
+    if mode == 'sequential':
+        results, duration = sequential(paths)
+    else:
+        results, duration = parallel(paths)
+
+    return f"Mode: {mode}, Time taken: {duration:.2f} seconds"
+✅ Step 6: Compare and Display Results
+Display:
+
+Time taken
+
+Sample images (original and processed)
+
+Speedup calculation
+
+python
+Copy
+Edit
+speedup = seq_time / par_time
+print(f"Speedup: {speedup:.2f}x")
+🧾 Expected Output
+Processed images saved/displayed.
+
+Performance comparison printed or visualized.
+
+Option to download results.
+
+Summary page:
+
+yaml
+Copy
+Edit
+Processing Mode: Parallel
+Number of Images: 5
+Time Taken: 2.41 seconds
+Speedup: 3.4x over Sequential
+📈 Project Outcome
+Demonstrates how parallelism improves image processing performance.
+
+User can clearly see time reduction and speedup factor.
+
+Fully functional web-based user interface makes the project user-friendly and practical.

@@ -1,0 +1,21 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+venv/
+.venv/
+
+# VSCode settings
+.vscode/
+
+# Pyproject lock files
+*.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/
